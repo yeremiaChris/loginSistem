@@ -40,7 +40,7 @@ export default function Register({ navigation, login }) {
                 placeholder="Password"
                 style={styles.input}
               />
-              <Button title="Register" onPress={handleSubmit} />
+              <Button title="Login" onPress={handleSubmit} />
             </View>
           </View>
         </View>
