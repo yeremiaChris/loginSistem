@@ -4,11 +4,11 @@ import { TextInput } from "react-native";
 import { Formik } from "formik";
 import axios from "axios";
 
-export default function Register({ navigation, login }) {
+export default function Register({ navigation, login, error }) {
   const toggleDrawer = () => {
     navigation.openDrawer();
   };
-
+  console.log(error);
   return (
     <Formik
       initialValues={{
@@ -24,15 +24,40 @@ export default function Register({ navigation, login }) {
               MENU
             </Text>
           </View>
+
           <View style={styles.mainContainer}>
             <View style={styles.container}>
               <Text style={styles.regis}>Login </Text>
+              {error.error.map((item, key) => {
+                return (
+                  <View key={key}>
+                    {item.Email === undefined ? null : item.Email.length ===
+                      1 ? (
+                      <Text style={styles.error}> {item.Email[0]}</Text>
+                    ) : (
+                      <View>
+                        <Text style={styles.error}>{item.Email[0]}</Text>
+                        <Text style={styles.error}>{item.Email[1]}</Text>
+                      </View>
+                    )}
+                  </View>
+                );
+              })}
               <TextInput
                 onChangeText={handleChange("email")}
                 value={values.email}
                 placeholder="Email"
                 style={styles.input}
               />
+              {error.error.map((item, key) => {
+                return (
+                  <Text key={key} style={{ color: "red" }}>
+                    {item.Password === undefined
+                      ? null
+                      : item.Password.map((item) => item.toString())}
+                  </Text>
+                );
+              })}
               <TextInput
                 onChangeText={handleChange("password")}
                 value={values.password}
@@ -89,5 +114,8 @@ const styles = StyleSheet.create({
   textHeader: {
     color: "white",
     marginLeft: 10,
+  },
+  error: {
+    color: "red",
   },
 });

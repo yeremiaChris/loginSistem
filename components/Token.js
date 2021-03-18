@@ -14,9 +14,9 @@ export default function Register({ navigation }) {
         onPress: () => navigation.navigate(title),
       },
     ]);
-  const kirim = (token, { resetForm }) => {
+  const kirim = (data, { resetForm }) => {
     const obj = {
-      token: token,
+      token: data.token,
     };
     axios
       .post("http://apidev.pluginesia.com/api/verify-email", obj)
@@ -25,7 +25,7 @@ export default function Register({ navigation }) {
         navigation.navigate("Login");
       })
       .catch((err) => {
-        showAlert("Register", "Error");
+        showAlert("Token", "Error");
         resetForm();
         console.log(err);
       });

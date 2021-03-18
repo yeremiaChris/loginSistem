@@ -4,6 +4,7 @@ import { TextInput } from "react-native";
 import { Formik } from "formik";
 import axios from "axios";
 export default function Register({ navigation }) {
+  // alert
   const showAlert = (title, message) =>
     Alert.alert("", message, [
       {
@@ -14,7 +15,9 @@ export default function Register({ navigation }) {
   const toggleDrawer = () => {
     navigation.openDrawer();
   };
-  const regis = (data, { resetForm }) => {
+
+  // function regis
+  const regis = async (data, { resetForm }) => {
     const obj = {
       title: "User",
       fullName: data.fullName,
@@ -23,17 +26,20 @@ export default function Register({ navigation }) {
       confirmPassword: data.confirmPassword,
       acceptTerms: true,
     };
-    // showAlert();
-    axios
-      .post("http://apidev.pluginesia.com/api/register", obj)
-      .then((data) => {
-        console.log(data);
-        resetForm();
-        showAlert("Token", data.data.message);
+    axios({
+      method: "POST",
+      url: "http://apidev.pluginesia.com/api/register",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      data: obj,
+    })
+      .then((res) => {
+        console.log(res);
+        showAlert("Token", res.data.message);
       })
       .catch((err) => {
-        resetForm();
-        showAlert("Register", "Error");
+        console.log(err.response.data.errors);
       });
   };
   return (
@@ -128,5 +134,8 @@ const styles = StyleSheet.create({
   textHeader: {
     color: "white",
     marginLeft: 10,
+  },
+  error: {
+    color: "red",
   },
 });

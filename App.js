@@ -27,6 +27,12 @@ const showAlert = (message) =>
   ]);
 
 export default function App() {
+  // error handling login
+  const [error, setError] = React.useState({
+    error: [],
+  });
+
+  // user state
   const [user, setUser] = React.useState({
     isVerified: false,
     jwtToken: "",
@@ -45,21 +51,32 @@ export default function App() {
   }, []);
 
   // function login
+
+  // array untuk error
+  const array = [];
+  let password = [];
+  let email = [];
   const login = (data, resetForm, navigation) => {
     const obj = {
       email: data.email,
-      password: data.password,
+      password: data.password.toString(),
     };
-    axios
-      .post("http://apidev.pluginesia.com/api/authenticate", obj)
-      .then((data) => {
+    axios({
+      method: "POST",
+      url: "http://apidev.pluginesia.com/api/authenticate",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      data: obj,
+    })
+      .then((res) => {
         let UID123_object = {
           isVerified: false,
           jwtToken: "",
         };
         let UID123_delta = {
-          isVerified: data.data.data.isVerified,
-          jwtToken: data.data.data.jwtToken,
+          isVerified: res.data.data.isVerified,
+          jwtToken: res.data.data.jwtToken,
         };
         AsyncStorage.setItem("USER", JSON.stringify(UID123_object), () => {
           AsyncStorage.mergeItem("USER", JSON.stringify(UID123_delta), () => {
@@ -73,15 +90,19 @@ export default function App() {
             });
           });
         });
+        setError({
+          error: [],
+        });
         resetForm();
         showAlert("Anda sudah login");
       })
       .catch((err) => {
-        showAlert("ada yang salah");
-        console.log(err);
+        array.push(err.response.data.errors);
+        setError({
+          error: array,
+        });
       });
   };
-
   const logoutAction = async () => {
     try {
       await AsyncStorage.removeItem("USER");
@@ -109,7 +130,7 @@ export default function App() {
             {(props) => <Register {...props} />}
           </Drawer.Screen>
           <Drawer.Screen name="Login">
-            {(props) => <Login {...props} login={login} />}
+            {(props) => <Login {...props} login={login} error={error} />}
           </Drawer.Screen>
           <Drawer.Screen name="Token" component={Token} />
         </Drawer.Navigator>
