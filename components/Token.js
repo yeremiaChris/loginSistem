@@ -4,7 +4,7 @@ import { TextInput } from "react-native";
 import { Formik } from "formik";
 import axios from "axios";
 export default function Register({ navigation }) {
-  const toggleDrawer = ({ navigation }) => {
+  const toggleDrawer = () => {
     navigation.openDrawer();
   };
   const showAlert = (title, message) =>

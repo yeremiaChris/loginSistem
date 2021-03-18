@@ -35,11 +35,12 @@ export default function App() {
   React.useEffect(() => {
     AsyncStorage.getItem("USER", (err, result) => {
       const obj = JSON.parse(result);
-      console.log(result);
-      setUser({
-        isVerified: obj.isVerified,
-        jwtToken: obj.jwtToken,
-      });
+      obj === null
+        ? null
+        : setUser({
+            isVerified: obj.isVerified,
+            jwtToken: obj.jwtToken,
+          });
     });
   }, []);
 
@@ -76,6 +77,7 @@ export default function App() {
         showAlert("Anda sudah login");
       })
       .catch((err) => {
+        showAlert("ada yang salah");
         console.log(err);
       });
   };
@@ -91,7 +93,6 @@ export default function App() {
       console.log(error);
     }
   };
-
   function CustomDrawerContent(props) {
     return (
       <DrawerContentScrollView {...props}>
@@ -100,7 +101,6 @@ export default function App() {
       </DrawerContentScrollView>
     );
   }
-  console.log(user);
   return (
     <NavigationContainer>
       {!user.isVerified ? (
