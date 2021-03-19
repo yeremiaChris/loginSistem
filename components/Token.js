@@ -3,6 +3,7 @@ import { StyleSheet, Text, View, Button, Alert } from "react-native";
 import { TextInput } from "react-native";
 import { Formik } from "formik";
 import axios from "axios";
+import { tokenSchema } from "./util/util";
 export default function Register({ navigation }) {
   const toggleDrawer = () => {
     navigation.openDrawer();
@@ -25,9 +26,10 @@ export default function Register({ navigation }) {
         navigation.navigate("Login");
       })
       .catch((err) => {
-        showAlert("Token", "Error");
+        err.response.data.message !== undefined
+          ? showAlert("Token", err.response.data.message)
+          : null;
         resetForm();
-        console.log(err);
       });
   };
   return (
@@ -36,8 +38,16 @@ export default function Register({ navigation }) {
         token: "",
       }}
       onSubmit={kirim}
+      validationSchema={tokenSchema}
     >
-      {({ handleChange, handleSubmit, values, errors, touched }) => (
+      {({
+        handleChange,
+        handleBlur,
+        handleSubmit,
+        values,
+        errors,
+        touched,
+      }) => (
         <View style={{ flex: 1 }}>
           <View style={styles.header}>
             <Text onPress={toggleDrawer} style={styles.textHeader}>
@@ -49,10 +59,14 @@ export default function Register({ navigation }) {
               <Text style={styles.regis}>Token </Text>
               <TextInput
                 onChangeText={handleChange("token")}
+                onBlur={handleBlur("token")}
                 value={values.token}
                 placeholder="Token dari email"
                 style={styles.input}
               />
+              {errors.token && touched.token ? (
+                <Text style={styles.error}>{errors.token}</Text>
+              ) : null}
               <Button title="Kirim" onPress={handleSubmit} />
             </View>
           </View>
@@ -102,5 +116,8 @@ const styles = StyleSheet.create({
   textHeader: {
     color: "white",
     marginLeft: 10,
+  },
+  error: {
+    color: "red",
   },
 });

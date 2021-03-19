@@ -3,6 +3,7 @@ import { StyleSheet, Text, View, Button, Alert } from "react-native";
 import { TextInput } from "react-native";
 import { Formik } from "formik";
 import axios from "axios";
+import { regisSchema } from "./util/util";
 export default function Register({ navigation }) {
   // alert
   const showAlert = (title, message) =>
@@ -36,10 +37,14 @@ export default function Register({ navigation }) {
     })
       .then((res) => {
         console.log(res);
+        resetForm();
         showAlert("Token", res.data.message);
       })
       .catch((err) => {
-        console.log(err.response.data.errors);
+        err.response.data.message !== undefined
+          ? showAlert("Register", err.response.data.message)
+          : null;
+        resetForm();
       });
   };
   return (
@@ -50,9 +55,18 @@ export default function Register({ navigation }) {
         password: "",
         confirmPassword: "",
       }}
+      validationSchema={regisSchema}
       onSubmit={regis}
     >
-      {({ handleChange, handleSubmit, values, errors, touched }) => (
+      {({
+        handleChange,
+        handleBlur,
+        handleSubmit,
+        values,
+        errors,
+        touched,
+        resetForm,
+      }) => (
         <View style={{ flex: 1 }}>
           <View style={styles.header}>
             <Text onPress={toggleDrawer} style={styles.textHeader}>
@@ -64,31 +78,50 @@ export default function Register({ navigation }) {
               <Text style={styles.regis}>Register </Text>
               <TextInput
                 onChangeText={handleChange("fullName")}
+                onBlur={handleBlur("fullName")}
                 value={values.fullName}
                 placeholder="Fullname"
                 style={styles.input}
               />
+              {errors.fullName && touched.fullName ? (
+                <Text style={styles.error}>{errors.fullName}</Text>
+              ) : null}
               <TextInput
                 onChangeText={handleChange("email")}
+                onBlur={handleBlur("email")}
                 value={values.email}
                 placeholder="Email"
                 style={styles.input}
               />
+              {errors.email && touched.email ? (
+                <Text style={styles.error}>{errors.email}</Text>
+              ) : null}
               <TextInput
                 onChangeText={handleChange("password")}
+                onBlur={handleBlur("password")}
                 value={values.password}
                 secureTextEntry={true}
                 placeholder="Password"
                 style={styles.input}
               />
+              {errors.password && touched.password ? (
+                <Text style={styles.error}>{errors.password}</Text>
+              ) : null}
               <TextInput
                 onChangeText={handleChange("confirmPassword")}
+                onBlur={handleBlur("confirmPassword")}
                 value={values.confirmPassword}
                 secureTextEntry={true}
                 placeholder="Confirm Password"
                 style={styles.input}
               />
+              {errors.confirmPassword && touched.confirmPassword ? (
+                <Text style={styles.error}>{errors.confirmPassword}</Text>
+              ) : null}
               <Button title="Register" onPress={handleSubmit} />
+              <View style={styles.reset}>
+                <Button title="Reset" color="red" onPress={resetForm} />
+              </View>
             </View>
           </View>
         </View>
@@ -137,5 +170,8 @@ const styles = StyleSheet.create({
   },
   error: {
     color: "red",
+  },
+  reset: {
+    marginTop: 10,
   },
 });

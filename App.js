@@ -7,16 +7,20 @@ import Login from "./components/Login";
 import Token from "./components/Token";
 import TextSatu from "./components/TextSatu";
 import TextDua from "./components/TextDua";
-import { AsyncStorage } from "react-native";
-import axios from "axios";
+import { login, logoutAction } from "./components/util/util";
 import {
   DrawerContentScrollView,
   DrawerItemList,
   DrawerItem,
 } from "@react-navigation/drawer";
+import { AsyncStorage } from "react-native";
+
 const Drawer = createDrawerNavigator();
 
 // login
+// alert error
+
+// alert login
 const showAlert = (message) =>
   Alert.alert("", message, [
     {
@@ -38,6 +42,7 @@ export default function App() {
     jwtToken: "",
   });
 
+  // useEffect mengenali user
   React.useEffect(() => {
     AsyncStorage.getItem("USER", (err, result) => {
       const obj = JSON.parse(result);
@@ -50,75 +55,11 @@ export default function App() {
     });
   }, []);
 
-  // function login
-
-  // array untuk error
-  const array = [];
-  let password = [];
-  let email = [];
-  const login = (data, resetForm, navigation) => {
-    const obj = {
-      email: data.email,
-      password: data.password.toString(),
-    };
-    axios({
-      method: "POST",
-      url: "http://apidev.pluginesia.com/api/authenticate",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      data: obj,
-    })
-      .then((res) => {
-        let UID123_object = {
-          isVerified: false,
-          jwtToken: "",
-        };
-        let UID123_delta = {
-          isVerified: res.data.data.isVerified,
-          jwtToken: res.data.data.jwtToken,
-        };
-        AsyncStorage.setItem("USER", JSON.stringify(UID123_object), () => {
-          AsyncStorage.mergeItem("USER", JSON.stringify(UID123_delta), () => {
-            AsyncStorage.getItem("USER", (err, result) => {
-              const obj = JSON.parse(result);
-              console.log(obj);
-              setUser({
-                isVerified: obj.isVerified,
-                jwtToken: obj.jwtToken,
-              });
-            });
-          });
-        });
-        setError({
-          error: [],
-        });
-        resetForm();
-        showAlert("Anda sudah login");
-      })
-      .catch((err) => {
-        array.push(err.response.data.errors);
-        setError({
-          error: array,
-        });
-      });
-  };
-  const logoutAction = async () => {
-    try {
-      await AsyncStorage.removeItem("USER");
-      setUser({
-        isVerified: false,
-        jwtToken: "",
-      });
-    } catch (error) {
-      console.log(error);
-    }
-  };
   function CustomDrawerContent(props) {
     return (
       <DrawerContentScrollView {...props}>
         <DrawerItemList {...props} />
-        <DrawerItem label="Logout" onPress={logoutAction} />
+        <DrawerItem label="Logout" onPress={() => logoutAction(setUser)} />
       </DrawerContentScrollView>
     );
   }
@@ -130,7 +71,7 @@ export default function App() {
             {(props) => <Register {...props} />}
           </Drawer.Screen>
           <Drawer.Screen name="Login">
-            {(props) => <Login {...props} login={login} error={error} />}
+            {(props) => <Login {...props} login={login} setUser={setUser} />}
           </Drawer.Screen>
           <Drawer.Screen name="Token" component={Token} />
         </Drawer.Navigator>

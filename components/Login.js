@@ -3,21 +3,28 @@ import { StyleSheet, Text, View, Button, Alert } from "react-native";
 import { TextInput } from "react-native";
 import { Formik } from "formik";
 import axios from "axios";
-
-export default function Register({ navigation, login, error }) {
+import { loginSchema } from "./util/util";
+export default function Register({ navigation, login, setUser }) {
   const toggleDrawer = () => {
     navigation.openDrawer();
   };
-  console.log(error);
   return (
     <Formik
       initialValues={{
         email: "",
         password: "",
       }}
-      onSubmit={(data, { resetForm }) => login(data, resetForm, navigation)}
+      onSubmit={(data, { resetForm }) => login(data, resetForm, setUser)}
+      validationSchema={loginSchema}
     >
-      {({ handleChange, handleSubmit, values, errors, touched }) => (
+      {({
+        handleChange,
+        handleBlur,
+        handleSubmit,
+        values,
+        errors,
+        touched,
+      }) => (
         <View style={{ flex: 1 }}>
           <View style={styles.header}>
             <Text onPress={toggleDrawer} style={styles.textHeader}>
@@ -28,43 +35,27 @@ export default function Register({ navigation, login, error }) {
           <View style={styles.mainContainer}>
             <View style={styles.container}>
               <Text style={styles.regis}>Login </Text>
-              {error.error.map((item, key) => {
-                return (
-                  <View key={key}>
-                    {item.Email === undefined ? null : item.Email.length ===
-                      1 ? (
-                      <Text style={styles.error}> {item.Email[0]}</Text>
-                    ) : (
-                      <View>
-                        <Text style={styles.error}>{item.Email[0]}</Text>
-                        <Text style={styles.error}>{item.Email[1]}</Text>
-                      </View>
-                    )}
-                  </View>
-                );
-              })}
               <TextInput
                 onChangeText={handleChange("email")}
+                onBlur={handleBlur("email")}
                 value={values.email}
                 placeholder="Email"
                 style={styles.input}
               />
-              {error.error.map((item, key) => {
-                return (
-                  <Text key={key} style={{ color: "red" }}>
-                    {item.Password === undefined
-                      ? null
-                      : item.Password.map((item) => item.toString())}
-                  </Text>
-                );
-              })}
+              {errors.email && touched.email ? (
+                <Text style={styles.error}>{errors.email}</Text>
+              ) : null}
               <TextInput
                 onChangeText={handleChange("password")}
+                onBlur={handleBlur("email")}
                 value={values.password}
                 secureTextEntry={true}
                 placeholder="Password"
                 style={styles.input}
               />
+              {errors.password && touched.password ? (
+                <Text style={styles.error}>{errors.password}</Text>
+              ) : null}
               <Button title="Login" onPress={handleSubmit} />
             </View>
           </View>
